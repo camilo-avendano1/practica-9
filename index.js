@@ -58,7 +58,7 @@ function evaluateEntry(entryTokenArr, rules){
     while(stack[stack.length - 1] !== '$'){ 
         entryToken = entryTokenArr[0];
         lastStackToken = stack[stack.length-1]
-        if(compare(entryToken , lastStackToken)){
+        if(nonTerminalIndex !== -1 && terminalIndex !== -1){
             entryTokenArr.shift()
             stack.pop()
         } else{
@@ -74,4 +74,3 @@ function evaluateEntry(entryTokenArr, rules){
 }
 
 //matrix of rules for the grammar
-

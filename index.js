@@ -1,36 +1,32 @@
-const terminalArr = ['+', '-', '*', '/', '(', ')', 'num', 'id', '$']
+const terminalArr = ['+', '-', '*', '/', '(', ')', 'num', 'id', '$', '@']
 const nonTerminalArr = ['E', 'E\'', 'T', 'T\'', 'F']
 
-const rules = [
-    //   +   -    *   /  (    )  num id  $
-        ['', '', '', '', 'TE\'', '', 'TE\'', 'TE\'', ''],
-        ['+TE\'', '-TE\'', '', '', '', '@', '', '', '@'],
-        ['', '', '', '', 'FT\'', '', 'FT\'', 'FT\'', ''],
-        ['@', '@', '*FT\'', '/FT\'', '', '@', '', '', '@'],
-        ['', '', '', '', '(E)', '', 'num', 'id', '']
-    ]
 
-    const entry = "id+num*id$" //verification string
-
-    stackableValue = rules[getNonTerminalIndex(lastStackToken)][getTerminalIndex(entryTokenArr)]
-    console.log(stackableValue);
-
-
-
-function addToStack(stack, val){
-    console.log('Hola')
-    let valArr = val.split('') 
-    token = ''
-    for(let  i = valArr.length - 1; i >= 0; i--){
-        console.log(i)
-        if(valArr[i] === "'") token = "'"
-        else{
-            console.log('Pasa por acá con token: ' + token)
-            token = valArr[i] + token
-            stack.push(token)
-            token = ''
+function stackFromMatrix(stack, matrixValue){
+    let tokenArray = matrixValue.split('') 
+    let token
+    let tokenAcum = ''
+    for(let  i = tokenArray.length - 1; i >= 0; i--){
+        token = tokenArray[i]
+        tokenAcum = token + tokenAcum
+        if(isRegistred(tokenAcum)){
+            stack.push(tokenAcum)
+            tokenAcum = ''
         }
     }
+}
+
+function showArrayAsString(arr){
+    return '[' + arr.join(',') + ']'
+}
+
+function consoleLogTwoColumns(left, right, columnWidth) {
+    const paddedLeft = left.padEnd(columnWidth);
+    console.log(`${paddedLeft}${right}`);
+  }
+
+function isRegistred(token){
+    return terminalArr.includes(token) || nonTerminalArr.includes(token)
 }
 
 function compare(val1,val2) {
@@ -47,7 +43,7 @@ function getNonTerminalIndex(nonTerminalVarible){
 
 
 
-const entryTokensArr = ['id', '+' , 'num' , '*' , 'id', '$']
+
 function evaluateEntry(entryTokenArr, rules){
     const initialValue = 'E'
     const stack = ['$']
@@ -55,22 +51,37 @@ function evaluateEntry(entryTokenArr, rules){
     let lastStackToken;
     let stackableValue;
     stack.push(initialValue)
+    consoleLogTwoColumns('Stack: ' + showArrayAsString(stack), 'Entry: ' + showArrayAsString(entryTokenArr), 40)
     while(stack[stack.length - 1] !== '$'){ 
         entryToken = entryTokenArr[0];
         lastStackToken = stack[stack.length-1]
-        if(nonTerminalIndex !== -1 && terminalIndex !== -1){
+        if(compare(entryToken , lastStackToken)){
             entryTokenArr.shift()
             stack.pop()
         } else{
-            console
-            stackableValue = rules[getNonTerminalIndex(lastStackToken)][getTerminalIndex(entryTokenArr)]
-            console.log(stackableValue);
-            stack.pop()
-            addToStack(stack,stackableValue)
+            if(lastStackToken === '@') stack.pop()
+            else{
+                stackableValue = rules[getNonTerminalIndex(lastStackToken)][getTerminalIndex(entryToken)]
+                stack.pop()
+                stackFromMatrix(stack,stackableValue)
+            }
         }
+    consoleLogTwoColumns('Stack: ' + showArrayAsString(stack), 'Entry: ' + showArrayAsString(entryTokenArr), 40)
     }
-    if (entryTokensArr[entryTokensArray.lenght-1] === '$') return 'Es válida'
-    return 'No es válida'
+    if (entryTokenArr[0] === '$' && stack.length === 1) return '\nThe entry is valid'
+    return '\nThe entry is not valid'
 }
 
 //matrix of rules for the grammar
+const rules = [
+    //   +   -    *   /  (    )  num id  $
+        ['', '', '', '', 'TE\'', '', 'TE\'', 'TE\'', ''],
+        ['+TE\'', '-TE\'', '', '', '', '@', '', '', '@'],
+        ['', '', '', '', 'FT\'', '', 'FT\'', 'FT\'', ''],
+        ['@', '@', '*FT\'', '/FT\'', '', '@', '', '', '@'],
+        ['', '', '', '', '(E)', '', 'num', 'id', '']
+    ]
+
+const entryTokensArr = ['id', '+' , 'num' , '*' , 'id', '$']
+
+console.log(evaluateEntry(entryTokensArr, rules))

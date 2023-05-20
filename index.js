@@ -41,22 +41,37 @@ function getNonTerminalIndex(nonTerminalVarible){
     return nonTerminalArr.indexOf(nonTerminalVarible)
 }
 
+function stringToTokenArray(stringEntry){
+    let tokenArray = []
+    let token
+    let tokenAcum = ''
+    for(let i = 0; i < stringEntry.length; i++){
+        token = stringEntry[i]
+        tokenAcum = tokenAcum + token
+        if(isRegistred(tokenAcum)){
+            tokenArray.push(tokenAcum)
+            tokenAcum = ''
+        }
+    }
+    tokenArray.push('$')
+    return tokenArray;
+}
 
 
-
-function evaluateEntry(entryTokenArr, rules){
+function evaluateEntry(entry, rules){
+    let tokenArray = stringToTokenArray(entry) 
     const initialValue = 'E'
     const stack = ['$']
     let entryToken;
     let lastStackToken;
     let stackableValue;
     stack.push(initialValue)
-    consoleLogTwoColumns('Stack: ' + showArrayAsString(stack), 'Entry: ' + showArrayAsString(entryTokenArr), 40)
+    consoleLogTwoColumns('Stack: ' + showArrayAsString(stack), 'Entry: ' + tokenArray.join(''), 40)
     while(stack[stack.length - 1] !== '$'){ 
-        entryToken = entryTokenArr[0];
+        entryToken = tokenArray[0];
         lastStackToken = stack[stack.length-1]
         if(compare(entryToken , lastStackToken)){
-            entryTokenArr.shift()
+            tokenArray.shift()
             stack.pop()
         } else{
             if(lastStackToken === '@') stack.pop()
@@ -66,9 +81,9 @@ function evaluateEntry(entryTokenArr, rules){
                 stackFromMatrix(stack,stackableValue)
             }
         }
-    consoleLogTwoColumns('Stack: ' + showArrayAsString(stack), 'Entry: ' + showArrayAsString(entryTokenArr), 40)
+    consoleLogTwoColumns('Stack: ' + showArrayAsString(stack), 'Entry: ' + tokenArray.join(''), 40)
     }
-    if (entryTokenArr[0] === '$' && stack.length === 1) return '\nThe entry is valid'
+    if (tokenArray[0] === '$' && stack.length === 1) return '\nThe entry is valid'
     return '\nThe entry is not valid'
 }
 
@@ -82,6 +97,5 @@ const rules = [
         ['', '', '', '', '(E)', '', 'num', 'id', '']
     ]
 
-const entryTokensArr = ['id', '+' , 'num' , '*' , 'id', '$']
-
-console.log(evaluateEntry(entryTokensArr, rules))
+const entry = 'id+num*id' 
+console.log(evaluateEntry(entry, rules))
